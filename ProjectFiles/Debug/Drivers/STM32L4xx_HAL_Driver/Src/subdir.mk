@@ -21,10 +21,12 @@ C_SRCS += \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.c \
+../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_sd.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c \
-../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c 
+../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c \
+../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_sdmmc.c 
 
 OBJS += \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.o \
@@ -44,10 +46,12 @@ OBJS += \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.o \
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_sd.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.o \
-./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.o 
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.o \
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_sdmmc.o 
 
 C_DEPS += \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.d \
@@ -67,10 +71,12 @@ C_DEPS += \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.d \
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_sd.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.d \
-./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.d 
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.d \
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_sdmmc.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -78,7 +84,7 @@ Drivers/STM32L4xx_HAL_Driver/Src/%.o: ../Drivers/STM32L4xx_HAL_Driver/Src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32L476xx -I"C:/Users/matt watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/20170927_MoreTimer/UARTtry/Inc" -I"C:/Users/matt watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/20170927_MoreTimer/UARTtry/Drivers/STM32L4xx_HAL_Driver/Inc" -I"C:/Users/matt watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/20170927_MoreTimer/UARTtry/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/matt watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/20170927_MoreTimer/UARTtry/Drivers/CMSIS/Device/ST/STM32L4xx/Include" -I"C:/Users/matt watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/20170927_MoreTimer/UARTtry/Drivers/CMSIS/Include" -I"C:/Users/matt watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/20170927_MoreTimer/UARTtry/Inc"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32L476xx -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Inc" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/STM32L4xx_HAL_Driver/Inc" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/CMSIS/Device/ST/STM32L4xx/Include" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/CMSIS/Include" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Inc" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Middlewares/Third_Party/FatFs/src/drivers" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Middlewares/Third_Party/FatFs/src"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

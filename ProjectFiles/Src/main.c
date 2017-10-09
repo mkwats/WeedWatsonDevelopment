@@ -767,8 +767,8 @@ HAL_StatusTypeDef SendData(void)
 	if(huart2.gState == HAL_UART_STATE_READY)
 	{
 		//at 115200, at 500hz this is about as much as can send between triggers
-		memset(aTxBuffer, '/0',TXBUFFERSIZE);
-		uint8_t len = sprintf(aTxBuffer,"Other Text %i\n",454);
+		memset(aTxBuffer, '\0',TXBUFFERSIZE);
+		uint8_t len = sprintf((char*)aTxBuffer,"Other Text %i\n",454);
 
 		//transmit using the HAL
 		if (0) {
@@ -805,9 +805,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	if (huart2.gState == HAL_UART_STATE_READY)
 	{
 		//don't need this as sprintf put a null at the end.
-		memset(aTxBuffer, '/0',TXBUFFERSIZE);
-		uint8_t len = sprintf(aTxBuffer,"Other Text %i\n",454);
-		//way to count lenght of chars before the null,
+		memset(aTxBuffer, '\0',TXBUFFERSIZE);
+		uint8_t len = sprintf((char*)aTxBuffer,"Other Text %i\n",454);
+		//way to count length of chars before the null,
 		//but using sprintf is nicer.
 		//uint8_t len = size(&aTxBuffer[0]);
 
@@ -893,15 +893,18 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	//HAL_START_DMA sets the callbacks
 	//ADC_DMAConvCplt()
+	/*
 	if(hadc==hadc1)
 	{
 
 	}
 
-	if(hadc==hadc2)
+	if(hadc->Instance==hadc2)
 	{
 
 	}
+	*/
+
 }
 
 /**

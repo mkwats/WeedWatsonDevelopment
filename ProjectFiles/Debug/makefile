@@ -10,6 +10,9 @@ RM := rm -rf
 -include sources.mk
 -include startup/subdir.mk
 -include Src/subdir.mk
+-include Middlewares/Third_Party/FatFs/src/option/subdir.mk
+-include Middlewares/Third_Party/FatFs/src/drivers/subdir.mk
+-include Middlewares/Third_Party/FatFs/src/subdir.mk
 -include Drivers/STM32L4xx_HAL_Driver/Src/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -28,13 +31,13 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: UARTtry.elf
+all: WeedWatsonDevelopment.elf
 
 # Tool invocations
-UARTtry.elf: $(OBJS) $(USER_OBJS) ../STM32L476RGTx_FLASH.ld
+WeedWatsonDevelopment.elf: $(OBJS) $(USER_OBJS) ../STM32L476RGTx_FLASH.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -T"../STM32L476RGTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "UARTtry.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -T"../STM32L476RGTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "WeedWatsonDevelopment.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
@@ -46,8 +49,8 @@ clean:
 
 post-build:
 	-@echo 'Generating binary and Printing size information:'
-	arm-none-eabi-objcopy -O binary "UARTtry.elf" "UARTtry.bin"
-	arm-none-eabi-size "UARTtry.elf"
+	arm-none-eabi-objcopy -O binary "WeedWatsonDevelopment.elf" "WeedWatsonDevelopment.bin"
+	arm-none-eabi-size "WeedWatsonDevelopment.elf"
 	-@echo ' '
 
 .PHONY: all clean dependents
