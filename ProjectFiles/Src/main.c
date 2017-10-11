@@ -51,6 +51,7 @@
 #include "fatfs.h"
 
 /* USER CODE BEGIN Includes */
+#include "hd44780.h"
 
 /* ADC parameters */
 #define ADCCONVERTEDVALUES_BUFFER_SIZE ((uint32_t)    3)    /* Size of array containing ADC converted values: set to ADC sequencer number of ranks converted, to have a rank in each address */
@@ -63,7 +64,7 @@ ADC_HandleTypeDef hadc2;
 DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc2;
 
-RTC_HandleTypeDef hrtc;
+I2C_HandleTypeDef hi2c1;
 
 SD_HandleTypeDef hsd1;
 
@@ -88,6 +89,10 @@ uint8_t aTxBuffer[] = "****UART_TwoBoards communication based on DMA****\n****UA
 
 /* Buffer used for reception */
 uint8_t aRxBuffer[RXBUFFERSIZE];
+
+/* I2C display */
+LCD_PCF8574_HandleTypeDef	lcd;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -100,8 +105,8 @@ static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM15_Init(void);
-static void MX_RTC_Init(void);
 static void MX_SDMMC1_SD_Init(void);
+static void MX_I2C1_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -110,6 +115,10 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 /* Private function prototypes -----------------------------------------------*/
 void callBack(DMA_HandleTypeDef * hdma);
 void do_ADC_conversion(void);
+void initLCD(void);
+void errorHandleLCD(LCD_RESULT result);
+void errorHandleI2C(PCF8574_RESULT result);
+
 HAL_StatusTypeDef SendData(void);
 /* USER CODE END PFP */
 
@@ -167,9 +176,9 @@ int main(void)
   MX_ADC2_Init();
   MX_TIM4_Init();
   MX_TIM15_Init();
-  MX_RTC_Init();
   MX_SDMMC1_SD_Init();
   MX_FATFS_Init();
+  MX_I2C1_Init();
 
   /* USER CODE BEGIN 2 */
   HAL_UART_Transmit_DMA(&huart2, (uint8_t*)aTxBuffer, TXBUFFERSIZE);
@@ -201,8 +210,23 @@ int main(void)
     Error_Handler();
   }
 
+  /* Init LCD and print some stuff there */
+  initLCD();
 
+	if(LCD_Init(&lcd)!=LCD_OK){
+		// error occured
+		Error_Handler();
+	}
 
+	LCD_ClearDisplay(&lcd);
+	LCD_SetLocation(&lcd, 0, 0);
+	LCD_WriteString(&lcd, "pi:");
+	LCD_SetLocation(&lcd, 0, 1);
+	LCD_WriteString(&lcd, "e:");
+	LCD_SetLocation(&lcd, 6, 0);
+	LCD_WriteFloat(&lcd,3.1415926,7);
+	LCD_SetLocation(&lcd, 6, 1);
+	LCD_WriteFloat(&lcd,2.71,2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -229,14 +253,13 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
-  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 2;
   RCC_OscInitStruct.PLL.PLLN = 10;
+  RCC_OscInitStruct.PLL.PLLM = 1;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -251,26 +274,26 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USART2
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C1
                               |RCC_PERIPHCLK_SDMMC1|RCC_PERIPHCLK_ADC;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
   PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
-  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   PeriphClkInit.Sdmmc1ClockSelection = RCC_SDMMC1CLKSOURCE_PLLSAI1;
   PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_HSI;
-  PeriphClkInit.PLLSAI1.PLLSAI1M = 2;
-  PeriphClkInit.PLLSAI1.PLLSAI1N = 25;
+  PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
+  PeriphClkInit.PLLSAI1.PLLSAI1N = 8;
   PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
   PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV4;
-  PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV4;
+  PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
   PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_48M2CLK|RCC_PLLSAI1_ADC1CLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
@@ -432,21 +455,34 @@ static void MX_ADC2_Init(void)
 
 }
 
-/* RTC init function */
-static void MX_RTC_Init(void)
+/* I2C1 init function */
+static void MX_I2C1_Init(void)
 {
 
-    /**Initialize RTC Only 
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.Timing = 0x00909BEB;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure Analogue filter 
     */
-  hrtc.Instance = RTC;
-  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
-  hrtc.Init.AsynchPrediv = 127;
-  hrtc.Init.SynchPrediv = 255;
-  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
-  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
-  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure Digital filter 
+    */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -480,6 +516,7 @@ static void MX_TIM3_Init(void)
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 63999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -529,6 +566,7 @@ static void MX_TIM4_Init(void)
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 49999;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -583,6 +621,7 @@ static void MX_TIM15_Init(void)
   htim15.Init.Period = 49999;
   htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim15.Init.RepetitionCounter = 0;
+  htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim15) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -929,7 +968,60 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
   Error_Handler();
 }
 
+void initLCD(void)
+{
+	lcd.pcf8574.PCF_I2C_ADDRESS = LCD1_I2C_ADDRESS;
+	lcd.pcf8574.PCF_I2C_TIMEOUT = 1000;
+	lcd.pcf8574.i2c = hi2c1;
+	//	lcd.pcf8574.i2c.Instance = I2C1;
+		//lcd.pcf8574.i2c.Init.Timing= 400000;
+		//this was code from example but ClockSpeed is not there
+		//lcd.pcf8574.i2c.Init.ClockSpeed = 400000;
+	lcd.NUMBER_OF_LINES = NUMBER_OF_LINES_2;
+	lcd.errorCallback = errorHandleLCD;
+	lcd.pcf8574.errorCallback = errorHandleI2C;
+	//lcd.errorCallback = errorHandleLCD; //added this to see if can handle error
+	lcd.type = TYPE0;
 
+	if(LCD_Init(&lcd)!=LCD_OK){
+		// error occured
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+	LCD_ClearDisplay(&lcd);
+	LCD_SetLocation(&lcd, 0, 0);
+	LCD_WriteString(&lcd, "pi:");
+	LCD_SetLocation(&lcd, 0, 1);
+	LCD_WriteString(&lcd, "e:");
+	LCD_SetLocation(&lcd, 6, 0);
+	LCD_WriteFloat(&lcd,3.1415926,7);
+	LCD_SetLocation(&lcd, 6, 1);
+	LCD_WriteFloat(&lcd,2.71,2);
+
+}
+
+
+/**
+  * @brief  Error Callback from LCD library, set in initLCD
+  * @param  None
+  * @note   Just goes to standard error handle
+  * @retval None
+  */
+void errorHandleLCD(LCD_RESULT result)
+{
+	_Error_Handler(__FILE__, __LINE__);
+}
+
+/**
+  * @brief  Error Callback from LCD library, set in initLCD
+  * @param  None
+  * @note   Just goes to standard error handle
+  * @retval None
+  */
+void errorHandleI2C(PCF8574_RESULT result)
+{
+	_Error_Handler(__FILE__, __LINE__);
+}
 
 /* USER CODE END 4 */
 

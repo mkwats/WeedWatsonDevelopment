@@ -25,6 +25,10 @@
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
 	<linkedResources>
-		
+		<link>
+			<name>STM32_Library</name>
+			<type>2</type>
+			<location>C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/STM32_Library</location>
+		</link>
 	</linkedResources>
 </projectDescription>

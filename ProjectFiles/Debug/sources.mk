@@ -17,8 +17,9 @@ C_DEPS :=
 SUBDIRS := \
 Drivers/STM32L4xx_HAL_Driver/Src \
 Middlewares/Third_Party/FatFs/src \
-Middlewares/Third_Party/FatFs/src/drivers \
 Middlewares/Third_Party/FatFs/src/option \
+STM32_Library/HD44780-master \
+STM32_Library/PCF8574-master \
 Src \
 startup \
 

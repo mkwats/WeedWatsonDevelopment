@@ -9,6 +9,7 @@ C_SRCS += \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc_ex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.c \
+../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma_ex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ramfunc.c \
@@ -19,9 +20,8 @@ C_SRCS += \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c \
-../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc.c \
-../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_sd.c \
+../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_sd_ex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c \
 ../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c \
@@ -34,6 +34,7 @@ OBJS += \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc_ex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.o \
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma_ex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ramfunc.o \
@@ -44,9 +45,8 @@ OBJS += \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.o \
-./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc.o \
-./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_sd.o \
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_sd_ex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.o \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.o \
@@ -59,6 +59,7 @@ C_DEPS += \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc_ex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.d \
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma_ex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ramfunc.d \
@@ -69,9 +70,8 @@ C_DEPS += \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.d \
-./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc.d \
-./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_sd.d \
+./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_sd_ex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.d \
 ./Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.d \
@@ -84,7 +84,7 @@ Drivers/STM32L4xx_HAL_Driver/Src/%.o: ../Drivers/STM32L4xx_HAL_Driver/Src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32L476xx -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Inc" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/STM32L4xx_HAL_Driver/Inc" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/CMSIS/Device/ST/STM32L4xx/Include" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/CMSIS/Include" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Inc" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Middlewares/Third_Party/FatFs/src/drivers" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Middlewares/Third_Party/FatFs/src"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32L476xx -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Inc" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/STM32L4xx_HAL_Driver/Inc" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/CMSIS/Device/ST/STM32L4xx/Include" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Drivers/CMSIS/Include" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/WeedWatsonDevelopment/ProjectFiles/Middlewares/Third_Party/FatFs/src" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/STM32_Library/HD44780-master" -I"C:/Users/Watson/Google Drive/MKWprojects/20170623_CutterWedit/20170922_GitRepo/STM32_Library/PCF8574-master"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

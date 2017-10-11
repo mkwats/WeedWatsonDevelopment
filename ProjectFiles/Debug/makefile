@@ -10,8 +10,9 @@ RM := rm -rf
 -include sources.mk
 -include startup/subdir.mk
 -include Src/subdir.mk
+-include STM32_Library/PCF8574-master/subdir.mk
+-include STM32_Library/HD44780-master/subdir.mk
 -include Middlewares/Third_Party/FatFs/src/option/subdir.mk
--include Middlewares/Third_Party/FatFs/src/drivers/subdir.mk
 -include Middlewares/Third_Party/FatFs/src/subdir.mk
 -include Drivers/STM32L4xx_HAL_Driver/Src/subdir.mk
 -include subdir.mk
