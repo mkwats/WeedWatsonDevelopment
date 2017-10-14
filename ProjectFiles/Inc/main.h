@@ -80,6 +80,7 @@
 /* Size of Reception buffer */
 #define RXBUFFERSIZE                      	TXBUFFERSIZE
 
+
 #define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 /* USER CODE END Private defines */
 

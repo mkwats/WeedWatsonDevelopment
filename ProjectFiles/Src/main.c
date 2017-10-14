@@ -93,6 +93,10 @@ uint8_t aRxBuffer[RXBUFFERSIZE];
 /* I2C display */
 LCD_PCF8574_HandleTypeDef	lcd;
 
+/* counter for pushbutton function increment*/
+uint8_t PB_counter = 0;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -118,11 +122,26 @@ void do_ADC_conversion(void);
 void initLCD(void);
 void errorHandleLCD(LCD_RESULT result);
 void errorHandleI2C(PCF8574_RESULT result);
+void writeTestLCD(void);
 
 HAL_StatusTypeDef SendData(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+
+//write some stuff to the LCD
+void writeTestLCD(void)
+{
+	LCD_SetLocation(&lcd, 0, 0);
+	LCD_WriteString(&lcd, "pi:");
+	LCD_SetLocation(&lcd, 0, 1);
+	LCD_WriteString(&lcd, "e:");
+	LCD_SetLocation(&lcd, 6, 0);
+	LCD_WriteFloat(&lcd,3.1415926,7);
+	LCD_SetLocation(&lcd, 6, 1);
+	LCD_WriteFloat(&lcd,2.71,2);
+}
+
 //returns the size of a character array using a pointer to the first element of the character array
 int size(uint8_t *ptr)
 {
@@ -187,7 +206,7 @@ int main(void)
   //if(HAL_UART_Receive_DMA(&UartHandle, (uint8_t *)aRxBuffer, RXBUFFERSIZE) != HAL_OK)
 
   /** TIM for base timer, timer for internal trigger */
-  //HAL_TIM_Base_Start_IT(&htim3);
+  HAL_TIM_Base_Start_IT(&htim3);
   /**TIM for Output Compare, PinToggle */
   HAL_TIM_OC_Start_IT(&htim3, TIM_CHANNEL_1);
 
@@ -210,23 +229,29 @@ int main(void)
     Error_Handler();
   }
 
+
+
+  /** i2c play
+  //..this works sending three bytes to the i2c.
+  uint8_t size = 2;
+  uint8_t i2cTxBuffer[] = {0, 0 , 0x30};
+		  //(handle->PCF_I2C_ADDRESS << 1) | PCF8574_I2C_ADDRESS_MASK
+
+  //needs to be blocking because more to come.
+  HAL_I2C_Master_Transmit(&hi2c1,
+  			(0x3F|0x40),
+			i2cTxBuffer,
+			size,
+			1000);
+*/
+
   /* Init LCD and print some stuff there */
   initLCD();
 
-	if(LCD_Init(&lcd)!=LCD_OK){
-		// error occured
-		Error_Handler();
-	}
-
+	/* write to LCD*/
 	LCD_ClearDisplay(&lcd);
-	LCD_SetLocation(&lcd, 0, 0);
-	LCD_WriteString(&lcd, "pi:");
-	LCD_SetLocation(&lcd, 0, 1);
-	LCD_WriteString(&lcd, "e:");
-	LCD_SetLocation(&lcd, 6, 0);
-	LCD_WriteFloat(&lcd,3.1415926,7);
-	LCD_SetLocation(&lcd, 6, 1);
-	LCD_WriteFloat(&lcd,2.71,2);
+	writeTestLCD();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -258,8 +283,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLN = 10;
   RCC_OscInitStruct.PLL.PLLM = 1;
+  RCC_OscInitStruct.PLL.PLLN = 10;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -460,7 +485,7 @@ static void MX_I2C1_Init(void)
 {
 
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x00909BEB;
+  hi2c1.Init.Timing = 0x0090EBFF;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -838,39 +863,41 @@ HAL_StatusTypeDef SendData(void)
 	return result;
 }
 
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim->Instance==TIM3 && htim->Channel==HAL_TIM_ACTIVE_CHANNEL_1)
+	{
+	//For serial testing, send stuff
+	SendData();
+	}
+
+}
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	//HAL_StatusTypeDef response;
+	if(GPIO_Pin == B1_Pin)
+	{
+		if (PB_counter == 0){
+			LCD_ClearDisplay(&lcd);
+			PB_counter ++;
+		} else if(PB_counter == 1){
+			writeTestLCD();
+			PB_counter ++;
+		} else if(PB_counter == 2){
+			lcd.backLight =! lcd.backLight;
+			LCD_StateLEDControl(&lcd, lcd.backLight);
+			PB_counter = 0;
+		}
+
+	}
+
+
+	//Send stuff on the serial. via HAL and DMA (bit slower that that used on timer
 	if (huart2.gState == HAL_UART_STATE_READY)
 	{
 		//don't need this as sprintf put a null at the end.
 		memset(aTxBuffer, '\0',TXBUFFERSIZE);
 		uint8_t len = sprintf((char*)aTxBuffer,"Other Text %i\n",454);
-		//way to count length of chars before the null,
-		//but using sprintf is nicer.
-		//uint8_t len = size(&aTxBuffer[0]);
-
-		/*
-	    //huart2.pTxBuffPtr = pData;
-	    huart2.TxXferSize = len;
-	    huart2.TxXferCount = len;
-
-	    huart2.ErrorCode = HAL_UART_ERROR_NONE;
-	    huart2.gState = HAL_UART_STATE_BUSY_TX;
-
-	    hdma_usart2_tx.Instance->CNDTR = len;
-
-	    __HAL_UART_CLEAR_FLAG(&huart2, UART_CLEAR_TCF);
-	    SET_BIT(huart2.Instance->CR3, USART_CR3_DMAT);
-		 */
-
-		//HAL_UART_Transmit_DMA(&huart2, (uint8_t*)aTxBuffer, len)
-		//sets the lenths, callbacks, clears flags
-		//runs HMA_DMA_Start_IT(..)
-			//enables the interupt bits
-		//runs DMA_SetConfig(..)
-			//set dst and scr addresses, and size
-		//sets the transfer start bit
 
 		HAL_StatusTypeDef result = HAL_OK;
 		result = HAL_UART_Transmit_DMA(&huart2, (uint8_t*)aTxBuffer, len);
@@ -982,22 +1009,12 @@ void initLCD(void)
 	lcd.pcf8574.errorCallback = errorHandleI2C;
 	//lcd.errorCallback = errorHandleLCD; //added this to see if can handle error
 	lcd.type = TYPE0;
+	lcd.backLight = 0;
 
-	if(LCD_Init(&lcd)!=LCD_OK){
+	if(LCD_Init(&lcd)!=LCD_OK){ //LCD_Init set the pins as defined in hd44780.c!
 		// error occured
 		_Error_Handler(__FILE__, __LINE__);
 	}
-
-	LCD_ClearDisplay(&lcd);
-	LCD_SetLocation(&lcd, 0, 0);
-	LCD_WriteString(&lcd, "pi:");
-	LCD_SetLocation(&lcd, 0, 1);
-	LCD_WriteString(&lcd, "e:");
-	LCD_SetLocation(&lcd, 6, 0);
-	LCD_WriteFloat(&lcd,3.1415926,7);
-	LCD_SetLocation(&lcd, 6, 1);
-	LCD_WriteFloat(&lcd,2.71,2);
-
 }
 
 
@@ -1022,6 +1039,8 @@ void errorHandleI2C(PCF8574_RESULT result)
 {
 	_Error_Handler(__FILE__, __LINE__);
 }
+
+
 
 /* USER CODE END 4 */
 

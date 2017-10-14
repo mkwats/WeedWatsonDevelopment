@@ -164,7 +164,6 @@ void TIM3_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
 
-  SendData();
   /* USER CODE END TIM3_IRQn 1 */
 }
 
