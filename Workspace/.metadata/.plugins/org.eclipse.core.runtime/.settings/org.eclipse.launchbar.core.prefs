@@ -1,6 +1,10 @@
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/arch=x86_64
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/os=win32
-configDescList=org.eclipse.launchbar.core.descriptorType.default\:WeedWatsonDevelopment Debug
+configDescList=org.eclipse.launchbar.core.descriptorType.default\:WeedWatsonDevelopment Debug,org.eclipse.launchbar.core.descriptorType.default\:STM32L_SD_CARD Debug,org.eclipse.launchbar.core.descriptorType.default\:F4tEST Debug
 eclipse.preferences.version=1
+org.eclipse.launchbar.core.descriptorType.default\:F4tEST\ Debug/activeLaunchMode=debug
+org.eclipse.launchbar.core.descriptorType.default\:F4tEST\ Debug/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:STM32L_SD_CARD\ Debug/activeLaunchMode=debug
+org.eclipse.launchbar.core.descriptorType.default\:STM32L_SD_CARD\ Debug/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
 org.eclipse.launchbar.core.descriptorType.default\:WeedWatsonDevelopment\ Debug/activeLaunchMode=debug
 org.eclipse.launchbar.core.descriptorType.default\:WeedWatsonDevelopment\ Debug/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local

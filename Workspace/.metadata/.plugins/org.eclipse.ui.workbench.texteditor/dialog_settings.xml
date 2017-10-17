@@ -2,17 +2,20 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="3F" key="selection"/>
+		<item value="HAL_NVIC_EnableIRQ" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
-			<item value="3F"/>
-			<item value="errorCallback"/>
-			<item value="RCC_PLLCFGR_PLLM"/>
-			<item value="PLLSAI1M"/>
-			<item value="PllSai1"/>
+			<item value="HAL_NVIC_EnableIRQ"/>
+			<item value="User_SD_File_Read"/>
+			<item value="HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);"/>
+			<item value="toggle"/>
+			<item value="Initialization Error The SD"/>
+			<item value="User_SD_File_Write"/>
+			<item value="LCD_StateWriteBit"/>
+			<item value="pins"/>
 		</list>
 		<list key="replacehistory">
 		</list>

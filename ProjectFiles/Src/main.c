@@ -100,6 +100,8 @@ uint8_t PB_counter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
+
+int fputc(int ch, FILE *f);
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
@@ -251,6 +253,11 @@ int main(void)
 	/* write to LCD*/
 	LCD_ClearDisplay(&lcd);
 	writeTestLCD();
+
+
+	/* Output a message on Hyperterminal using printf function */
+	printf("\n\r UART Printf Example: retarget the C library printf function to the UART\n\r");
+
 
   /* USER CODE END 2 */
 
@@ -1040,7 +1047,19 @@ void errorHandleI2C(PCF8574_RESULT result)
 	_Error_Handler(__FILE__, __LINE__);
 }
 
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+fputc(int ch, FILE *f)
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the EVAL_COM1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, 0xFFFF);
 
+  return ch;
+}
 
 /* USER CODE END 4 */
 

@@ -3,8 +3,14 @@
 #################
 
 ##lots of rubbish
-workspace/
-debug/
+
+**/DEBUG/**
+**/Drivers/**
+**/MDK_ARM/**
+MDK_ARM/**
+Workspace/**
+Drivers/
+
 ##google drive file
 *.ini
 
